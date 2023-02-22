@@ -44,7 +44,8 @@ def get_dimension_type(dimension: Dict[str, Any]) -> str:
         return "VERTICAL"
     elif name == "time":
         return "TEMPORAL"
-    raise ValueError(f"Unsupported dimension name {name}")
+    else:
+        return "OTHER"
 
 
 UNIT_RE = re.compile(r"(\w+) since (.*)")
@@ -54,7 +55,7 @@ def get_time_offset_and_step(unit: str) -> Tuple[datetime, timedelta]:
     match = UNIT_RE.match(unit)
     if match:
         step_unit, offset = match.groups()
-        offset = datetime.fromisoformat(offset)
+        offset = parse_datetime(offset)
         step = timedelta(**{step_unit: 1})
         return offset, step
     raise ValueError(f"Failed to parse time unit from '{unit}'")
@@ -95,9 +96,9 @@ def read_dimensions_and_variables(
         diff = np.diff(data)
         if len(diff) > 1:
             evenly_spaced = cast(bool, np.all(diff == diff[0]))
-            step = float(data[1] - data[0])
+            step = float(data[1] - data[0]) if evenly_spaced else None
             values = (
-                [float(v) for v in data] if evenly_spaced else cast(List[float], [])
+                [float(v) for v in data] if not evenly_spaced else cast(List[float], [])
             )
         else:
             evenly_spaced = False
@@ -148,7 +149,10 @@ def read_dimensions_and_variables(
         elif typ == "TEMPORAL":
             # translate extent, values, step according to units
             offset, step_unit = get_time_offset_and_step(unit)
-            extent = [(offset + v * step_unit).isoformat() for v in extent]
+            extent = [
+                (offset + extent[0] * step_unit).isoformat(),
+                (offset + extent[1] * step_unit + step_unit).isoformat(),
+            ]
             values = [(offset + v * step_unit).isoformat() for v in values]
             if step is not None:
                 # TODO: maybe refine, using days
@@ -167,7 +171,7 @@ def read_dimensions_and_variables(
         else:
             dimension = AdditionalDimension(
                 {
-                    "type": "OTHER",
+                    "type": "other",
                     "extent": extent,
                     "step": step,
                     "unit": unit,
@@ -192,7 +196,7 @@ def read_dimensions_and_variables(
     for array_name, array_info in info["arrays"].items():
         variables[array_name] = Variable(
             {
-                "var_type": VariableType.DATA,
+                "type": VariableType.DATA,
                 "unit": array_info.get("unit"),
                 "dimensions": [dim_name[1:] for dim_name in array_info["dimensions"]],
                 # TODO: description
