@@ -130,8 +130,8 @@ def read_dimensions_and_variables(
                     ),
                     "extent": extent,
                     "step": step,
-                    "values": values,
                     "unit": unit,
+                    **({"values": values} if values else {}),
                 }
             )
         elif typ == "VERTICAL":
@@ -141,8 +141,8 @@ def read_dimensions_and_variables(
                     "axis": VerticalSpatialDimensionAxis.Z,
                     "extent": extent,
                     "step": step,
-                    "values": values,
                     "unit": unit,
+                    **({"values": values} if values else {}),
                 }
             )
         elif typ == "TEMPORAL":
@@ -161,7 +161,7 @@ def read_dimensions_and_variables(
                     "type": DimensionType.TEMPORAL,
                     "extent": extent,
                     "step": step,
-                    "values": values,
+                    **({"values": values} if values else {}),
                 }
             )
         else:
@@ -170,8 +170,8 @@ def read_dimensions_and_variables(
                     "type": "OTHER",
                     "extent": extent,
                     "step": step,
-                    "values": values,
                     "unit": unit,
+                    **({"values": values} if values else {}),
                 }
             )
 
