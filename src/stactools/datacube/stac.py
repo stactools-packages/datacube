@@ -1,4 +1,3 @@
-import logging
 import os.path
 import re
 from datetime import datetime, timedelta
@@ -28,8 +27,6 @@ from pystac.extensions.datacube import (
 from stactools.core.io import ReadHrefModifier
 
 gdal.UseExceptions()
-
-logger = logging.getLogger(__name__)
 
 
 def get_dimension_type(dimension: Dict[str, Any]) -> str:
