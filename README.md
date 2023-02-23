@@ -11,25 +11,38 @@
   - [datacube](https://github.com/stac-extensions/datacube/)
 - [Browse the example in human-readable form](https://radiantearth.github.io/stac-browser/#/external/raw.githubusercontent.com/stactools-packages/datacube/main/examples/collection.json)
 
-A short description of the package and its usage.
+This stactools extension package allows to create or extend STAC Items
+dealing with multi-dimensional data formats and to extract `datacube` related
+metadata from these assets.
+
+This extension relies on the GDAL multi-dimensional raster capabilities via
+the official Python API.
 
 ## STAC Examples
 
-- [Collection](examples/collection.json)
 - [Item](examples/item/item.json)
 
 ## Installation
 
 ```shell
+pip install "pygdal==$(gdal-config --version).*"
 pip install stactools-datacube
 ```
 
 ## Command-line Usage
 
-Description of the command line functions
+This command creates a new STAC Item from a multi-dimensional file like a
+netCDF:
 
 ```shell
 stac datacube create-item source destination
+```
+
+The following command extends an existing STAC Item, optionally by
+specifying an explicit asset:
+
+```shell
+stac datacube extend-item source --asset asset-name
 ```
 
 Use `stac datacube --help` to see all subcommands and options.
