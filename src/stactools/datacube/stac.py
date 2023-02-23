@@ -27,6 +27,8 @@ from pystac.extensions.datacube import (
 )
 from stactools.core.io import ReadHrefModifier
 
+gdal.UseExceptions()
+
 logger = logging.getLogger(__name__)
 
 
@@ -75,7 +77,7 @@ def read_dimensions_and_variables(
     else:
         raise ValueError(f"Unsupported HREF {href}")
 
-    ds = gdal.OpenEx(path, gdal.OF_MULTIDIM_RASTER)
+    ds = gdal.OpenEx(path, gdal.OF_MULTIDIM_RASTER | gdal.GA_ReadOnly)
     info = gdal.MultiDimInfo(ds)
 
     dimensions = {}
