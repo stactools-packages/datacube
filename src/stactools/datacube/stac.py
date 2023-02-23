@@ -181,17 +181,8 @@ def read_dimensions_and_variables(
                 }
             )
 
-        # properties["type"] = dim_type
-        # properties["extent"] = extent
-        # properties["step"] = step
-        # if not evenly_spaced:
-        #     properties["values"] = values
-        # if unit:
-        #     properties["unit"] = unit
+        # TODO: reference_system
 
-        # # TODO: reference_system
-
-        # dimensions[dim["name"]] = cls(properties)
         dimensions[dim["name"]] = dimension
 
     variables = {}
