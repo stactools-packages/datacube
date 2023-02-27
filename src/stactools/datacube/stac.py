@@ -62,7 +62,7 @@ def get_time_offset_and_step(unit: str) -> Tuple[datetime, timedelta]:
 
 def read_dimensions_and_variables(
     href: str,
-) -> Tuple[Dict[str, Dimension], Dict[str, Variable]]:
+) -> Tuple[Dict[str, Dimension], Dict[str, Variable], Dict[str, Any]]:
     url = urlparse(href)
     if not url.scheme:
         path = href
@@ -192,7 +192,7 @@ def read_dimensions_and_variables(
                 # TODO: description
             }
         )
-    return (dimensions, variables)
+    return (dimensions, variables, info)
 
 
 def _get_dimension(
@@ -220,10 +220,88 @@ def _reference_system_to_crs(
     return rasterio.crs.CRS(reference_system)
 
 
-def extend_asset(asset: Asset) -> DatacubeExtension[Asset]:
-    dimensions, variables = read_dimensions_and_variables(asset.href)
+def _get_geometry(
+    datacube: DatacubeExtension[Asset], info: Dict[str, Any]
+) -> Optional[Dict[str, Any]]:
+    dimensions = datacube.dimensions.values()
+    x_dim = cast(
+        Optional[HorizontalSpatialDimension],
+        _get_dimension(
+            dimensions,
+            DimensionType.SPATIAL,
+            HorizontalSpatialDimensionAxis.X,
+        ),
+    )
+    y_dim = cast(
+        Optional[HorizontalSpatialDimension],
+        _get_dimension(
+            dimensions,
+            DimensionType.SPATIAL,
+            HorizontalSpatialDimensionAxis.Y,
+        ),
+    )
+    attributes = info.get("attributes", {})
+    if x_dim and x_dim.step and y_dim and y_dim.step:
+        x_low, x_high = x_dim.extent
+        y_low, y_high = y_dim.extent
+
+        crs = _reference_system_to_crs(x_dim.reference_system or 4326)
+        proj_geometry = shapely.geometry.mapping(
+            shapely.geometry.box(x_low, y_low, x_high, y_high)
+        )
+        return stactools.core.projection.reproject_geom(
+            crs, "EPSG:4326", proj_geometry, precision=6
+        )
+
+    elif (
+        "geospatial_lat_min" in attributes
+        and "geospatial_lat_max" in attributes
+        and "geospatial_lon_min" in attributes
+        and "geospatial_lon_max" in attributes
+    ):
+        return cast(
+            Dict[str, Any],
+            shapely.geometry.mapping(
+                shapely.geometry.box(
+                    attributes["geospatial_lon_min"],
+                    attributes["geospatial_lat_min"],
+                    attributes["geospatial_lon_max"],
+                    attributes["geospatial_lat_max"],
+                )
+            ),
+        )
+    return None
+
+
+def extend_asset(item: Item, asset: Asset) -> DatacubeExtension[Asset]:
+    dimensions, variables, info = read_dimensions_and_variables(asset.href)
     datacube = DatacubeExtension.ext(asset, add_if_missing=True)
     datacube.apply(dimensions, variables)
+
+    if not item.geometry:
+        geometry = _get_geometry(datacube, info)
+        item.geometry = geometry
+        item.bbox = list(shapely.geometry.shape(geometry).bounds)
+
+    common = CommonMetadata(item)
+    time_dimension = cast(
+        Optional[TemporalDimension],
+        _get_dimension(dimensions.values(), DimensionType.TEMPORAL),
+    )
+    if time_dimension and time_dimension.extent:
+        start, end = time_dimension.extent
+        common.start_datetime = parse_datetime(start) if start else None
+        common.end_datetime = parse_datetime(end) if end else None
+        item.datetime = None
+    elif time_dimension and time_dimension.values:
+        common.start_datetime = parse_datetime(time_dimension.values[0])
+        common.end_datetime = parse_datetime(time_dimension.values[-1])
+        item.datetime = None
+    elif "time_coverage_start" in info and "time_coverage_end" in info:
+        common.start_datetime = parse_datetime(info["time_coverage_start"])
+        common.end_datetime = parse_datetime(info["time_coverage_end"])
+        item.datetime = None
+
     return datacube
 
 
@@ -238,39 +316,10 @@ def extend_item(item: Item, asset_name: Optional[str] = None) -> Item:
         raise ValueError("Unable to find data asset to extend")
 
     asset = item.get_assets()[asset_name]
-    datacube = extend_asset(asset)
+    datacube = extend_asset(item, asset)
 
     dimensions = datacube.dimensions.values()
     # add geometry, we assume lon/lat here
-    if not item.geometry:
-        x_dim = cast(
-            Optional[HorizontalSpatialDimension],
-            _get_dimension(
-                dimensions, DimensionType.SPATIAL, HorizontalSpatialDimensionAxis.X
-            ),
-        )
-        y_dim = cast(
-            Optional[HorizontalSpatialDimension],
-            _get_dimension(
-                dimensions, DimensionType.SPATIAL, HorizontalSpatialDimensionAxis.Y
-            ),
-        )
-        if x_dim and x_dim.step and y_dim and y_dim.step:
-            x_low, x_high = x_dim.extent
-            y_low, y_high = y_dim.extent
-
-            crs = _reference_system_to_crs(x_dim.reference_system or 4326)
-            proj_geometry = shapely.geometry.mapping(
-                shapely.geometry.box(x_low, y_low, x_high, y_high)
-            )
-            geometry = stactools.core.projection.reproject_geom(
-                crs, "EPSG:4326", proj_geometry, precision=6
-            )
-            item.geometry = stactools.core.projection.reproject_geom(
-                crs, "EPSG:4326", proj_geometry, precision=6
-            )
-            item.bbox = list(shapely.geometry.shape(geometry).bounds)
-
     common = CommonMetadata(item)
     if not common.start_datetime and not common.end_datetime and not item.datetime:
         time_dimension = cast(
