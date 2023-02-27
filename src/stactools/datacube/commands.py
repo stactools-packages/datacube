@@ -11,11 +11,11 @@ logger = logging.getLogger(__name__)
 
 
 def create_datacube_command(cli: Group) -> Command:
-    """Creates the stactools-ephemeral command line utility."""
+    """Creates the stactools-datacube command line utility."""
 
     @cli.group(
         "datacube",
-        short_help=("Commands for working with stactools-ephemeral"),
+        short_help=("Commands for working with stactools-datacube"),
     )
     def datacube() -> None:
         pass
