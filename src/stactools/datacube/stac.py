@@ -241,7 +241,7 @@ def _get_geometry(
         ),
     )
     attributes = info.get("attributes", {})
-    if x_dim and x_dim.step and y_dim and y_dim.step:
+    if x_dim and y_dim and None not in x_dim.extent and None not in y_dim.extent:
         x_low, x_high = x_dim.extent
         y_low, y_high = y_dim.extent
 
@@ -280,8 +280,9 @@ def extend_asset(item: Item, asset: Asset) -> DatacubeExtension[Asset]:
 
     if not item.geometry:
         geometry = _get_geometry(datacube, info)
-        item.geometry = geometry
-        item.bbox = list(shapely.geometry.shape(geometry).bounds)
+        if geometry:
+            item.geometry = geometry
+            item.bbox = list(shapely.geometry.shape(geometry).bounds)
 
     common = CommonMetadata(item)
     time_dimension = cast(
