@@ -1,4 +1,4 @@
-name: stactools-ephemeral
+name: stactools-datacube
 channels:
   - conda-forge
   - defaults
