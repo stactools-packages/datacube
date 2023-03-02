@@ -7,11 +7,37 @@
     "end_datetime": "1999-01-18T12:00:00Z",
     "datetime": null
   },
-  "geometry": null,
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          358.59375,
+          -88.927734
+        ],
+        [
+          358.59375,
+          88.927734
+        ],
+        [
+          0.0,
+          88.927734
+        ],
+        [
+          0.0,
+          -88.927734
+        ],
+        [
+          358.59375,
+          -88.927734
+        ]
+      ]
+    ]
+  },
   "links": [],
   "assets": {
     "data": {
-      "href": "tests/data/sresa1b_ncar_ccsm3-example.nc",
+      "href": "../../tests/data/sresa1b_ncar_ccsm3-example.nc",
       "cube:dimensions": {
         "lat": {
           "type": "spatial",
@@ -219,7 +245,7 @@
       },
       "cube:variables": {
         "area": {
-          "var_type": "data",
+          "type": "data",
           "unit": "meter2",
           "dimensions": [
             "lat",
@@ -227,14 +253,14 @@
           ]
         },
         "lat": {
-          "var_type": "data",
+          "type": "data",
           "unit": "degrees_north",
           "dimensions": [
             "lat"
           ]
         },
         "lat_bnds": {
-          "var_type": "data",
+          "type": "data",
           "unit": null,
           "dimensions": [
             "lat",
@@ -242,14 +268,14 @@
           ]
         },
         "lon": {
-          "var_type": "data",
+          "type": "data",
           "unit": "degrees_east",
           "dimensions": [
             "lon"
           ]
         },
         "lon_bnds": {
-          "var_type": "data",
+          "type": "data",
           "unit": null,
           "dimensions": [
             "lon",
@@ -257,7 +283,7 @@
           ]
         },
         "msk_rgn": {
-          "var_type": "data",
+          "type": "data",
           "unit": "bool",
           "dimensions": [
             "lat",
@@ -265,14 +291,14 @@
           ]
         },
         "plev": {
-          "var_type": "data",
+          "type": "data",
           "unit": "Pa",
           "dimensions": [
             "plev"
           ]
         },
         "pr": {
-          "var_type": "data",
+          "type": "data",
           "unit": "kg m-2 s-1",
           "dimensions": [
             "time",
@@ -281,7 +307,7 @@
           ]
         },
         "tas": {
-          "var_type": "data",
+          "type": "data",
           "unit": "K",
           "dimensions": [
             "time",
@@ -290,14 +316,14 @@
           ]
         },
         "time": {
-          "var_type": "data",
+          "type": "data",
           "unit": "days since 0001-1-1",
           "dimensions": [
             "time"
           ]
         },
         "time_bnds": {
-          "var_type": "data",
+          "type": "data",
           "unit": null,
           "dimensions": [
             "time",
@@ -305,7 +331,7 @@
           ]
         },
         "ua": {
-          "var_type": "data",
+          "type": "data",
           "unit": "m s-1",
           "dimensions": [
             "time",
@@ -320,6 +346,12 @@
       ]
     }
   },
+  "bbox": [
+    0.0,
+    -88.927734,
+    358.59375,
+    88.927734
+  ],
   "stac_extensions": [
     "https://stac-extensions.github.io/datacube/v2.0.0/schema.json"
   ]
