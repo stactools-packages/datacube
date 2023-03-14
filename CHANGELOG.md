@@ -9,20 +9,9 @@ number as needed.
 
 ## [Unreleased]
 
-### Added
+## [0.0.1] - 2023-03-14
 
-- Nothing.
+Initial release
 
-### Deprecated
-
-- Nothing.
-
-### Removed
-
-- Nothing.
-
-### Fixed
-
-- Nothing.
-
-[Unreleased]: <https://github.com/stactools-packages/datacube/tree/main/>
+[Unreleased]: <https://github.com/stactools-packages/datacube/compare/v0.0.1..main>
+[0.0.1]: <https://github.com/stactools-packages/datacube/tree/v0.0.1/>
