@@ -34,7 +34,18 @@
       ]
     ]
   },
-  "links": [],
+  "links": [
+    {
+      "rel": "self",
+      "href": "/home/fabian/dev/stactools-packages-datacube/examples/item/item.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "self",
+      "href": "/home/fabian/dev/stactools-packages-datacube/examples/item/item.json",
+      "type": "application/json"
+    }
+  ],
   "assets": {
     "data": {
       "href": "../../tests/data/sresa1b_ncar_ccsm3-example.nc",
@@ -186,7 +197,7 @@
             0.0,
             358.59375
           ],
-          "step": 1.40625,
+          "step": 1.4007568359375,
           "unit": "degrees_east"
         },
         "bnds": {
