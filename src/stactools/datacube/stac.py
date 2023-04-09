@@ -94,8 +94,8 @@ def read_dimensions_and_variables(
 
         diff = np.diff(data)
         if len(diff) > 1:
-            evenly_spaced = cast(bool, np.all(diff == diff[0]))
-            step = float(data[1] - data[0]) if evenly_spaced else None
+            evenly_spaced = np.allclose(diff, np.mean(diff))
+            step = float((data[-1] - data[0]) / len(data)) if evenly_spaced else None
             values = (
                 [float(v) for v in data] if not evenly_spaced else cast(List[float], [])
             )
