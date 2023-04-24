@@ -34,18 +34,7 @@
       ]
     ]
   },
-  "links": [
-    {
-      "rel": "self",
-      "href": "/home/fabian/dev/stactools-packages-datacube/examples/item/item.json",
-      "type": "application/json"
-    },
-    {
-      "rel": "self",
-      "href": "/home/fabian/dev/stactools-packages-datacube/examples/item/item.json",
-      "type": "application/json"
-    }
-  ],
+  "links": [],
   "assets": {
     "data": {
       "href": "../../tests/data/sresa1b_ncar_ccsm3-example.nc",
