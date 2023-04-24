@@ -61,7 +61,7 @@ def get_time_offset_and_step(unit: str) -> Tuple[datetime, timedelta]:
 
 
 def read_dimensions_and_variables(
-    href: str, rtol: float = 1.e-5
+    href: str, rtol: float = 1.0e-5
 ) -> Tuple[Dict[str, Dimension], Dict[str, Variable], Dict[str, Any]]:
     url = urlparse(href)
     if not url.scheme:
@@ -273,7 +273,9 @@ def _get_geometry(
     return None
 
 
-def extend_asset(item: Item, asset: Asset, rtol: float = 1.e-5) -> DatacubeExtension[Asset]:
+def extend_asset(
+    item: Item, asset: Asset, rtol: float = 1.0e-5
+) -> DatacubeExtension[Asset]:
     dimensions, variables, info = read_dimensions_and_variables(asset.href, rtol)
     datacube = DatacubeExtension.ext(asset, add_if_missing=True)
     datacube.apply(dimensions, variables)
@@ -306,7 +308,9 @@ def extend_asset(item: Item, asset: Asset, rtol: float = 1.e-5) -> DatacubeExten
     return datacube
 
 
-def extend_item(item: Item, asset_name: Optional[str] = None, rtol: float = 1.e-5) -> Item:
+def extend_item(
+    item: Item, asset_name: Optional[str] = None, rtol: float = 1.0e-5
+) -> Item:
     if not asset_name:
         for name, asset in item.get_assets().items():
             if "data" in (asset.roles or ()):
@@ -339,8 +343,9 @@ def extend_item(item: Item, asset_name: Optional[str] = None, rtol: float = 1.e-
 
 
 def create_item(
-    href: str, read_href_modifier: Optional[ReadHrefModifier] = None,
-    rtol: float = 1.e-5
+    href: str,
+    read_href_modifier: Optional[ReadHrefModifier] = None,
+    rtol: float = 1.0e-5,
 ) -> Item:
     id = os.path.splitext(os.path.basename(href))[0]
     if read_href_modifier:

@@ -23,8 +23,10 @@ def create_datacube_command(cli: Group) -> Command:
     @datacube.command("extend-item")
     @click.argument("source")
     @click.option("--asset", type=str)
-    @click.option("--rtol", type=float, default=1.e-5)
-    def extend_item_command(source: str, asset: Optional[str] = None, rtol: float = 1.e-5) -> None:
+    @click.option("--rtol", type=float, default=1.0e-5)
+    def extend_item_command(
+        source: str, asset: Optional[str] = None, rtol: float = 1.0e-5
+    ) -> None:
         item = pystac.Item.from_file(source)
         stac.extend_item(item, asset_name=asset, rtol=rtol)
         item.save_object()
@@ -32,8 +34,10 @@ def create_datacube_command(cli: Group) -> Command:
     @datacube.command("create-item")
     @click.argument("source")
     @click.argument("destination")
-    @click.option("--rtol", type=float, default=1.e-5)
-    def create_item_command(source: str, destination: str, rtol: float = 1.e-5) -> None:
+    @click.option("--rtol", type=float, default=1.0e-5)
+    def create_item_command(
+        source: str, destination: str, rtol: float = 1.0e-5
+    ) -> None:
         item = stac.create_item(source, rtol=rtol)
         item.save_object(dest_href=destination)
 
