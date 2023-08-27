@@ -35,9 +35,9 @@ def get_dimension_type(dimension: Dict[str, Any]) -> str:
         return typ
 
     name = dimension["name"].lower()
-    if name == "lon":
+    if name in ("lon", "long", "longitude"):
         return "HORIZONTAL_X"
-    elif name == "lat":
+    elif name in ("lat", "latitude"):
         return "HORIZONTAL_Y"
     elif name in ("z", "elevation"):
         return "VERTICAL"
