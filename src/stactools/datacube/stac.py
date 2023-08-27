@@ -312,7 +312,7 @@ def extend_item(
     item: Item, asset_name: Optional[str] = None, rtol: float = 1.0e-5
 ) -> Item:
     if not asset_name:
-        for name, asset in item.get_assets().items():
+        for name, asset in item.assets.items():
             if "data" in (asset.roles or ()):
                 asset_name = name
                 break
@@ -320,7 +320,7 @@ def extend_item(
     if asset_name is None:
         raise ValueError("Unable to find data asset to extend")
 
-    asset = item.get_assets()[asset_name]
+    asset = item.assets[asset_name]
     datacube = extend_asset(item, asset, rtol)
 
     dimensions = datacube.dimensions.values()
