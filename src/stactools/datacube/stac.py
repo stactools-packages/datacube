@@ -81,7 +81,7 @@ def read_dimensions_and_variables(
     for dim in info["dimensions"]:
         extent: Union[List[str], List[float]]
         values: Union[List[str], List[float]]
-        step: Union[str, float, None]
+        step: Union[str, float, None] = None
 
         typ = get_dimension_type(dim)
         indexing_variable = dim.get("indexing_variable")
@@ -95,7 +95,13 @@ def read_dimensions_and_variables(
         diff = np.diff(data)
         if len(diff) > 1:
             evenly_spaced = np.allclose(diff, np.mean(diff), rtol=rtol)
-            step = float((data[-1] - data[0]) / len(data)) if evenly_spaced else None
+
+            # mitigate floating point rounding issues
+            if np.all(diff == diff[0]):
+                step = diff[0]
+            elif evenly_spaced:
+                step = float((data[-1] - data[0]) / len(data))
+
             values = (
                 [float(v) for v in data] if not evenly_spaced else cast(List[float], [])
             )
@@ -244,6 +250,14 @@ def _get_geometry(
     if x_dim and y_dim and None not in x_dim.extent and None not in y_dim.extent:
         x_low, x_high = x_dim.extent
         y_low, y_high = y_dim.extent
+
+        # Adjust for "pixel is area"
+        if x_dim.step is not None:
+            x_low -= x_dim.step / 2
+            x_high += x_dim.step / 2
+        if y_dim.step is not None:
+            y_low -= y_dim.step / 2
+            y_high += y_dim.step / 2
 
         crs = _reference_system_to_crs(x_dim.reference_system or 4326)
         proj_geometry = shapely.geometry.mapping(
