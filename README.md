@@ -6,10 +6,9 @@
 - Package: `stactools.datacube`
 - [stactools-datacube on PyPI](https://pypi.org/project/stactools-datacube/)
 - Owner: @constantinius
-- [Dataset homepage](http://example.com)
 - STAC extensions used:
   - [datacube](https://github.com/stac-extensions/datacube/)
-- [Browse the example in human-readable form](https://radiantearth.github.io/stac-browser/#/external/raw.githubusercontent.com/stactools-packages/datacube/main/examples/item.json)
+- [Browse the example in human-readable form](https://radiantearth.github.io/stac-browser/#/external/raw.githubusercontent.com/stactools-packages/datacube/main/examples/item/item.json)
 
 This stactools extension package allows to create or extend STAC Items
 dealing with multi-dimensional data formats and to extract `datacube` related
