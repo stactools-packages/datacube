@@ -29,19 +29,35 @@ from stactools.core.io import ReadHrefModifier
 gdal.UseExceptions()
 
 
+def is_horizontal_x_dimension_name(type_name: str) -> bool:
+    return type_name in ("lon", "long", "longitude")
+
+
+def is_horizontal_y_dimension_name(type_name: str) -> bool:
+    return type_name in ("lat", "latitude")
+
+
+def is_vertical_dimension_name(type_name: str) -> bool:
+    return type_name in ("z", "elevation")
+
+
+def is_temporal_dimension_name(type_name: str) -> bool:
+    return type_name == "time"
+
+
 def get_dimension_type(dimension: Dict[str, Any]) -> str:
     typ: Optional[str] = dimension.get("type")
     if typ:
         return typ
 
     name = dimension["name"].lower()
-    if name in ("lon", "long", "longitude"):
+    if is_horizontal_x_dimension_name(name):
         return "HORIZONTAL_X"
-    elif name in ("lat", "latitude"):
+    elif is_horizontal_y_dimension_name(name):
         return "HORIZONTAL_Y"
-    elif name in ("z", "elevation"):
+    elif is_vertical_dimension_name(name):
         return "VERTICAL"
-    elif name == "time":
+    elif is_temporal_dimension_name(name):
         return "TEMPORAL"
     else:
         return "OTHER"
@@ -337,7 +353,7 @@ def extend_item(
     item: Item, asset_name: Optional[str] = None, rtol: float = 1.0e-5
 ) -> Item:
     if not asset_name:
-        for name, asset in item.get_assets().items():
+        for name, asset in item.assets.items():
             if "data" in (asset.roles or ()):
                 asset_name = name
                 break
@@ -345,7 +361,7 @@ def extend_item(
     if asset_name is None:
         raise ValueError("Unable to find data asset to extend")
 
-    asset = item.get_assets()[asset_name]
+    asset = item.assets[asset_name]
     datacube = extend_asset(item, asset, rtol)
 
     dimensions = datacube.dimensions.values()

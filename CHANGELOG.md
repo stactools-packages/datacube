@@ -11,8 +11,9 @@ number as needed.
 
 ### Changed
 
-- `read_dimensions_and_variables` allows small differences in step size to be ignored to still be reported as evenly spaced ((#8)[https://github.com/stactools-packages/datacube/pull/8])
-
+- `read_dimensions_and_variables` allows small differences in step size to be
+  ignored to still be reported as evenly spaced
+  ([#8](https://github.com/stactools-packages/datacube/pull/8))
 
 ## [0.0.1] - 2023-03-14
 
