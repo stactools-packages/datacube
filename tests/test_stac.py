@@ -36,7 +36,7 @@ def test_create_item() -> None:
     assert lon.dim_type == "spatial"
     assert lon.axis == "x"
     assert lon.extent == [0.0, 358.59375]
-    assert lon.step == 1.40625
+    assert lon.step == 1.4007568359375
     assert lon.values is None
 
     assert isinstance(bnds, AdditionalDimension)

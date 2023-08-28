@@ -61,7 +61,7 @@ def get_time_offset_and_step(unit: str) -> Tuple[datetime, timedelta]:
 
 
 def read_dimensions_and_variables(
-    href: str,
+    href: str, rtol: float = 1.0e-5
 ) -> Tuple[Dict[str, Dimension], Dict[str, Variable], Dict[str, Any]]:
     url = urlparse(href)
     if not url.scheme:
@@ -94,8 +94,8 @@ def read_dimensions_and_variables(
 
         diff = np.diff(data)
         if len(diff) > 1:
-            evenly_spaced = cast(bool, np.all(diff == diff[0]))
-            step = float(data[1] - data[0]) if evenly_spaced else None
+            evenly_spaced = np.allclose(diff, np.mean(diff), rtol=rtol)
+            step = float((data[-1] - data[0]) / len(data)) if evenly_spaced else None
             values = (
                 [float(v) for v in data] if not evenly_spaced else cast(List[float], [])
             )
@@ -273,8 +273,10 @@ def _get_geometry(
     return None
 
 
-def extend_asset(item: Item, asset: Asset) -> DatacubeExtension[Asset]:
-    dimensions, variables, info = read_dimensions_and_variables(asset.href)
+def extend_asset(
+    item: Item, asset: Asset, rtol: float = 1.0e-5
+) -> DatacubeExtension[Asset]:
+    dimensions, variables, info = read_dimensions_and_variables(asset.href, rtol)
     datacube = DatacubeExtension.ext(asset, add_if_missing=True)
     datacube.apply(dimensions, variables)
 
@@ -306,7 +308,9 @@ def extend_asset(item: Item, asset: Asset) -> DatacubeExtension[Asset]:
     return datacube
 
 
-def extend_item(item: Item, asset_name: Optional[str] = None) -> Item:
+def extend_item(
+    item: Item, asset_name: Optional[str] = None, rtol: float = 1.0e-5
+) -> Item:
     if not asset_name:
         for name, asset in item.get_assets().items():
             if "data" in (asset.roles or ()):
@@ -317,7 +321,7 @@ def extend_item(item: Item, asset_name: Optional[str] = None) -> Item:
         raise ValueError("Unable to find data asset to extend")
 
     asset = item.get_assets()[asset_name]
-    datacube = extend_asset(item, asset)
+    datacube = extend_asset(item, asset, rtol)
 
     dimensions = datacube.dimensions.values()
     # add geometry, we assume lon/lat here
@@ -339,7 +343,9 @@ def extend_item(item: Item, asset_name: Optional[str] = None) -> Item:
 
 
 def create_item(
-    href: str, read_href_modifier: Optional[ReadHrefModifier] = None
+    href: str,
+    read_href_modifier: Optional[ReadHrefModifier] = None,
+    rtol: float = 1.0e-5,
 ) -> Item:
     id = os.path.splitext(os.path.basename(href))[0]
     if read_href_modifier:
@@ -355,5 +361,5 @@ def create_item(
 
     item.add_asset("data", Asset(href=href, roles=["data"]))
     item.datetime = None
-    extend_item(item, "data")
+    extend_item(item, "data", rtol)
     return item
