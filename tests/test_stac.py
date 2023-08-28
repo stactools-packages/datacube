@@ -85,7 +85,7 @@ def test_create_item() -> None:
     assert ua.unit == "m s-1"
 
 
-def test_get_dimension_type():
+def test_get_dimension_type() -> None:
     assert stac.get_dimension_type({"name": "LON"}) == "HORIZONTAL_X"
     assert stac.get_dimension_type({"name": "long"}) == "HORIZONTAL_X"
     assert stac.get_dimension_type({"name": "Longitude"}) == "HORIZONTAL_X"
@@ -96,24 +96,27 @@ def test_get_dimension_type():
     assert stac.get_dimension_type({"name": "TIME"}) == "TEMPORAL"
     assert stac.get_dimension_type({"name": "unknown"}) == "OTHER"
 
-    assert stac.get_dimension_type({"name": "unknown", "type": "HORIZONTAL_X"}) == "HORIZONTAL_X"
+    assert (
+        stac.get_dimension_type({"name": "unknown", "type": "HORIZONTAL_X"})
+        == "HORIZONTAL_X"
+    )
 
 
-def test_is_horizontal_x_dimension_name():
+def test_is_horizontal_x_dimension_name() -> None:
     assert stac.is_horizontal_x_dimension_name("lon")
     assert stac.is_horizontal_x_dimension_name("long")
     assert stac.is_horizontal_x_dimension_name("longitude")
 
 
-def test_is_horizontal_y_dimension_name():
+def test_is_horizontal_y_dimension_name() -> None:
     assert stac.is_horizontal_y_dimension_name("lat")
     assert stac.is_horizontal_y_dimension_name("latitude")
 
 
-def test_is_vertical_dimension_name():
+def test_is_vertical_dimension_name() -> None:
     assert stac.is_vertical_dimension_name("z")
     assert stac.is_vertical_dimension_name("elevation")
 
 
-def test_is_temporal_dimension_name():
+def test_is_temporal_dimension_name() -> None:
     assert stac.is_temporal_dimension_name("time")
