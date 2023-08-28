@@ -29,19 +29,35 @@ from stactools.core.io import ReadHrefModifier
 gdal.UseExceptions()
 
 
+def is_horizontal_x_dimension_name(type_name: str) -> bool:
+    return type_name in ("lon", "long", "longitude")
+
+
+def is_horizontal_y_dimension_name(type_name: str) -> bool:
+    return type_name in ("lat", "latitude")
+
+
+def is_vertical_dimension_name(type_name: str) -> bool:
+    return type_name in ("z", "elevation")
+
+
+def is_temporal_dimension_name(type_name: str) -> bool:
+    return type_name == "time"
+
+
 def get_dimension_type(dimension: Dict[str, Any]) -> str:
     typ: Optional[str] = dimension.get("type")
     if typ:
         return typ
 
     name = dimension["name"].lower()
-    if name == "lon":
+    if is_horizontal_x_dimension_name(name):
         return "HORIZONTAL_X"
-    elif name == "lat":
+    elif is_horizontal_y_dimension_name(name):
         return "HORIZONTAL_Y"
-    elif name in ("z", "elevation"):
+    elif is_vertical_dimension_name(name):
         return "VERTICAL"
-    elif name == "time":
+    elif is_temporal_dimension_name(name):
         return "TEMPORAL"
     else:
         return "OTHER"
