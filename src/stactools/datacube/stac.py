@@ -60,6 +60,32 @@ def get_time_offset_and_step(unit: str) -> Tuple[datetime, timedelta]:
     raise ValueError(f"Failed to parse time unit from '{unit}'")
 
 
+def iso_duration(td: timedelta) -> str:
+    date_intervals = [
+        ('W', 604800),  # 60 * 60 * 24 * 7
+        ('D', 86400),    # 60 * 60 * 24
+    ]
+    time_intervals = [
+        ('H', 3600),    # 60 * 60
+        ('M', 60),
+    ]
+    seconds = td.total_seconds()
+    result = ["P"]
+    for name, count in date_intervals:
+        value = int(seconds // count)
+        if value:
+            seconds -= value * count
+            result.append(f"{value}{name}")
+    result.append("T")
+    for name, count in time_intervals:
+        value = int(seconds // count)
+        if value:
+            seconds -= value * count
+            result.append(f"{value}{name}")
+    result.append(f"{seconds}S")
+    return "".join(result)
+
+
 def read_dimensions_and_variables(
     href: str, rtol: float = 1.0e-5
 ) -> Tuple[Dict[str, Dimension], Dict[str, Variable], Dict[str, Any]]:
@@ -154,8 +180,7 @@ def read_dimensions_and_variables(
             ]
             values = [(offset + v * step_unit).isoformat() for v in values]
             if step is not None:
-                # TODO: maybe refine, using days
-                step = f"PT{(step_unit * step).total_seconds()}S"
+                step = iso_duration(step_unit * step)
 
             # set unit to null deliberately, as we already translated to ISO
             unit = None
