@@ -242,7 +242,7 @@ def _reference_system_to_crs(
     return rasterio.crs.CRS(reference_system)
 
 
-def _get_geometry(
+def get_geometry(
     datacube: DatacubeExtension[Asset], info: Dict[str, Any]
 ) -> Optional[Dict[str, Any]]:
     dimensions = datacube.dimensions.values()
@@ -311,7 +311,7 @@ def extend_asset(
     datacube.apply(dimensions, variables)
 
     if not item.geometry:
-        geometry = _get_geometry(datacube, info)
+        geometry = get_geometry(datacube, info)
         if geometry:
             item.geometry = geometry
             item.bbox = list(shapely.geometry.shape(geometry).bounds)
