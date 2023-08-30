@@ -1,12 +1,16 @@
+from typing import Dict
+
 from pystac import Asset
 from pystac.extensions.datacube import (
     AdditionalDimension,
     DatacubeExtension,
-    HorizontalSpatialDimension,
-    TemporalDimension,
-    VerticalSpatialDimension,
+    Dimension,
     DimensionType,
+    HorizontalSpatialDimension,
     HorizontalSpatialDimensionAxis,
+    TemporalDimension,
+    Variable,
+    VerticalSpatialDimension,
 )
 
 from stactools.datacube import stac
@@ -125,10 +129,10 @@ def test_is_temporal_dimension_name() -> None:
     assert stac.is_temporal_dimension_name("time")
 
 
-def test_get_geometry():
+def test_get_geometry() -> None:
     asset = Asset("http://example.com/data.nc")
     datacube = DatacubeExtension.ext(asset, add_if_missing=False)
-    dimensions = {
+    dimensions: Dict[str, Dimension] = {
         "lon": HorizontalSpatialDimension(
             {
                 "type": DimensionType.SPATIAL,
@@ -146,7 +150,7 @@ def test_get_geometry():
             }
         ),
     }
-    variables = {}
+    variables: Dict[str, Variable] = {}
     datacube.apply(dimensions, variables)
     assert stac.get_geometry(datacube, {}) == {
         "type": "Polygon",
@@ -162,10 +166,10 @@ def test_get_geometry():
     }
 
 
-def test_get_geometry_with_step_adjustment():
+def test_get_geometry_with_step_adjustment() -> None:
     asset = Asset("http://example.com/data.nc")
     datacube = DatacubeExtension.ext(asset, add_if_missing=False)
-    dimensions = {
+    dimensions: Dict[str, Dimension] = {
         "lon": HorizontalSpatialDimension(
             {
                 "type": DimensionType.SPATIAL,
@@ -183,7 +187,7 @@ def test_get_geometry_with_step_adjustment():
             }
         ),
     }
-    variables = {}
+    variables: Dict[str, Variable] = {}
     datacube.apply(dimensions, variables)
     assert stac.get_geometry(datacube, {}) == {
         "type": "Polygon",
@@ -199,11 +203,11 @@ def test_get_geometry_with_step_adjustment():
     }
 
 
-def test_get_geometry_from_metadata():
+def test_get_geometry_from_metadata() -> None:
     asset = Asset("http://example.com/data.nc")
     datacube = DatacubeExtension.ext(asset, add_if_missing=False)
-    dimensions = {}
-    variables = {}
+    dimensions: Dict[str, Dimension] = {}
+    variables: Dict[str, Variable] = {}
     datacube.apply(dimensions, variables)
     metadata = {
         "attributes": {
