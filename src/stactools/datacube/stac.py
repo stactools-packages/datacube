@@ -175,7 +175,7 @@ def read_dimensions_and_variables(
                 (offset + extent[1] * step_unit + step_unit).isoformat(),
             ]
             values = [(offset + v * step_unit).isoformat() for v in values]
-            if step is not None:
+            if isinstance(step, float):
                 # TODO: maybe refine, using days
                 step = f"PT{(step_unit * step).total_seconds()}S"
 
