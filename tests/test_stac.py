@@ -1,9 +1,16 @@
 from datetime import timedelta, datetime, date
+from typing import Dict
+
+from pystac import Asset
 from pystac.extensions.datacube import (
     AdditionalDimension,
     DatacubeExtension,
+    Dimension,
+    DimensionType,
     HorizontalSpatialDimension,
+    HorizontalSpatialDimensionAxis,
     TemporalDimension,
+    Variable,
     VerticalSpatialDimension,
 )
 
@@ -37,7 +44,7 @@ def test_create_item() -> None:
     assert lon.dim_type == "spatial"
     assert lon.axis == "x"
     assert lon.extent == [0.0, 358.59375]
-    assert lon.step == 1.4007568359375
+    assert lon.step == 1.40625
     assert lon.values is None
 
     assert isinstance(bnds, AdditionalDimension)
@@ -141,3 +148,105 @@ def test_iso_duration() -> None:
             microseconds=1,
         )
     ) == "P1W1DT1H1M1.000001S"
+
+    
+def test_get_geometry() -> None:
+    asset = Asset("http://example.com/data.nc")
+    datacube = DatacubeExtension.ext(asset, add_if_missing=False)
+    dimensions: Dict[str, Dimension] = {
+        "lon": HorizontalSpatialDimension(
+            {
+                "type": DimensionType.SPATIAL,
+                "axis": HorizontalSpatialDimensionAxis.X,
+                "extent": [-180, 180],
+                "values": [-180, 0, 180],
+            }
+        ),
+        "lat": HorizontalSpatialDimension(
+            {
+                "type": DimensionType.SPATIAL,
+                "axis": HorizontalSpatialDimensionAxis.Y,
+                "extent": [-90, 90],
+                "values": [-90, 0, 90],
+            }
+        ),
+    }
+    variables: Dict[str, Variable] = {}
+    datacube.apply(dimensions, variables)
+    assert stac.get_geometry(datacube, {}) == {
+        "type": "Polygon",
+        "coordinates": [
+            [
+                [180.0, -90.0],
+                [180.0, 90.0],
+                [-180.0, 90.0],
+                [-180.0, -90.0],
+                [180.0, -90.0],
+            ]
+        ],
+    }
+
+
+def test_get_geometry_with_step_adjustment() -> None:
+    asset = Asset("http://example.com/data.nc")
+    datacube = DatacubeExtension.ext(asset, add_if_missing=False)
+    dimensions: Dict[str, Dimension] = {
+        "lon": HorizontalSpatialDimension(
+            {
+                "type": DimensionType.SPATIAL,
+                "axis": HorizontalSpatialDimensionAxis.X,
+                "extent": [-179.5, 179.5],
+                "step": 1,
+            }
+        ),
+        "lat": HorizontalSpatialDimension(
+            {
+                "type": DimensionType.SPATIAL,
+                "axis": HorizontalSpatialDimensionAxis.Y,
+                "extent": [-89.5, 89.5],
+                "step": 1,
+            }
+        ),
+    }
+    variables: Dict[str, Variable] = {}
+    datacube.apply(dimensions, variables)
+    assert stac.get_geometry(datacube, {}) == {
+        "type": "Polygon",
+        "coordinates": [
+            [
+                [180.0, -90.0],
+                [180.0, 90.0],
+                [-180.0, 90.0],
+                [-180.0, -90.0],
+                [180.0, -90.0],
+            ]
+        ],
+    }
+
+
+def test_get_geometry_from_metadata() -> None:
+    asset = Asset("http://example.com/data.nc")
+    datacube = DatacubeExtension.ext(asset, add_if_missing=False)
+    dimensions: Dict[str, Dimension] = {}
+    variables: Dict[str, Variable] = {}
+    datacube.apply(dimensions, variables)
+    metadata = {
+        "attributes": {
+            "geospatial_lon_min": -180,
+            "geospatial_lat_min": -90,
+            "geospatial_lon_max": 180,
+            "geospatial_lat_max": 90,
+        }
+    }
+    assert stac.get_geometry(datacube, metadata) == {
+        "type": "Polygon",
+        "coordinates": (
+            (
+                (180.0, -90.0),
+                (180.0, 90.0),
+                (-180.0, 90.0),
+                (-180.0, -90.0),
+                (180.0, -90.0),
+            ),
+        ),
+    }
