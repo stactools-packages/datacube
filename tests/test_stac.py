@@ -1,4 +1,4 @@
-from datetime import timedelta, datetime, date
+from datetime import timedelta
 from typing import Dict
 
 from pystac import Asset
@@ -149,7 +149,7 @@ def test_iso_duration() -> None:
         )
     ) == "P1W1DT1H1M1.000001S"
 
-    
+
 def test_get_geometry() -> None:
     asset = Asset("http://example.com/data.nc")
     datacube = DatacubeExtension.ext(asset, add_if_missing=False)
