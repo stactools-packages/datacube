@@ -223,7 +223,7 @@ def read_dimensions_and_variables(
                 (offset + extent[1] * step_unit + step_unit).isoformat(),
             ]
             values = [(offset + v * step_unit).isoformat() for v in values]
-            if step is not None:
+            if isinstance(step, float):
                 step = iso_duration(step_unit * step)
 
             # set unit to null deliberately, as we already translated to ISO
