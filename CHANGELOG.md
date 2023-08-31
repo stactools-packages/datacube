@@ -9,6 +9,8 @@ number as needed.
 
 ## [Unreleased]
 
+## [0.1.0] - 2023-08-31
+
 ### Changed
 
 - `read_dimensions_and_variables` allows small differences in step size to be
@@ -19,5 +21,6 @@ number as needed.
 
 Initial release
 
-[Unreleased]: <https://github.com/stactools-packages/datacube/compare/v0.0.1..main>
+[Unreleased]: <https://github.com/stactools-packages/datacube/compare/v0.1.0..main>
+[0.1.0]: <https://github.com/stactools-packages/datacube/compare/v0.0.1..v0.1.0>
 [0.0.1]: <https://github.com/stactools-packages/datacube/tree/v0.0.1/>
