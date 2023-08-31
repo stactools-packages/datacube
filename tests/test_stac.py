@@ -138,16 +138,19 @@ def test_iso_duration() -> None:
     assert stac.iso_duration(timedelta(seconds=1)) == "PT1S"
     assert stac.iso_duration(timedelta(seconds=0)) == "PT0S"
     assert stac.iso_duration(timedelta(microseconds=1)) == "PT0.000001S"
-    assert stac.iso_duration(
-        timedelta(
-            weeks=1,
-            days=1,
-            hours=1,
-            minutes=1,
-            seconds=1,
-            microseconds=1,
+    assert (
+        stac.iso_duration(
+            timedelta(
+                weeks=1,
+                days=1,
+                hours=1,
+                minutes=1,
+                seconds=1,
+                microseconds=1,
+            )
         )
-    ) == "P1W1DT1H1M1.000001S"
+        == "P1W1DT1H1M1.000001S"
+    )
 
 
 def test_get_geometry() -> None:

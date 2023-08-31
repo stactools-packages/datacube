@@ -84,12 +84,12 @@ def iso_duration(td: timedelta) -> str:
     strings can be seen as approximations.
     """
     date_intervals = [
-        ('W', 604800),  # 60 * 60 * 24 * 7
-        ('D', 86400),    # 60 * 60 * 24
+        ("W", 604800),  # 60 * 60 * 24 * 7
+        ("D", 86400),  # 60 * 60 * 24
     ]
     time_intervals = [
-        ('H', 3600),    # 60 * 60
-        ('M', 60),
+        ("H", 3600),  # 60 * 60
+        ("M", 60),
     ]
     seconds = td.total_seconds()
 
