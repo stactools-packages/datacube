@@ -1,3 +1,4 @@
+from datetime import timedelta
 from typing import Dict
 
 from pystac import Asset
@@ -127,6 +128,29 @@ def test_is_vertical_dimension_name() -> None:
 
 def test_is_temporal_dimension_name() -> None:
     assert stac.is_temporal_dimension_name("time")
+
+
+def test_iso_duration() -> None:
+    assert stac.iso_duration(timedelta(weeks=1)) == "P1W"
+    assert stac.iso_duration(timedelta(days=1)) == "P1D"
+    assert stac.iso_duration(timedelta(hours=1)) == "PT1H"
+    assert stac.iso_duration(timedelta(minutes=1)) == "PT1M"
+    assert stac.iso_duration(timedelta(seconds=1)) == "PT1S"
+    assert stac.iso_duration(timedelta(seconds=0)) == "PT0S"
+    assert stac.iso_duration(timedelta(microseconds=1)) == "PT0.000001S"
+    assert (
+        stac.iso_duration(
+            timedelta(
+                weeks=1,
+                days=1,
+                hours=1,
+                minutes=1,
+                seconds=1,
+                microseconds=1,
+            )
+        )
+        == "P1W1DT1H1M1.000001S"
+    )
 
 
 def test_get_geometry() -> None:

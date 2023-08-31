@@ -76,6 +76,54 @@ def get_time_offset_and_step(unit: str) -> Tuple[datetime, timedelta]:
     raise ValueError(f"Failed to parse time unit from '{unit}'")
 
 
+def iso_duration(td: timedelta) -> str:
+    """Encodes a dateime.timedelta value as an ISO 8601 duration string.
+    This function uses only non-ambiguous date and time intervals: weeks, days
+    hours, minutes and seconds.
+    As timedeltas cannot represent accurate ISO 8601 durations, the resulting
+    strings can be seen as approximations.
+    """
+    date_intervals = [
+        ("W", 604800),  # 60 * 60 * 24 * 7
+        ("D", 86400),  # 60 * 60 * 24
+    ]
+    time_intervals = [
+        ("H", 3600),  # 60 * 60
+        ("M", 60),
+    ]
+    seconds = td.total_seconds()
+
+    date_part = []
+    for name, count in date_intervals:
+        value = int(seconds // count)
+        if value:
+            seconds -= value * count
+            date_part.append(f"{value}{name}")
+
+    time_part = []
+    for name, count in time_intervals:
+        value = int(seconds // count)
+        if value:
+            seconds -= value * count
+            time_part.append(f"{value}{name}")
+    if seconds:
+        # remove second fractions if not necessary
+        if int(seconds) == seconds:
+            time_part.append(f"{seconds:n}S")
+        else:
+            time_part.append(f"{seconds:f}S")
+
+    if time_part:
+        return f"P{''.join(date_part)}T{''.join(time_part)}"
+    elif date_part:
+        # if no time part exists, we can skip the "T" and everything afterwards
+        return f"P{''.join(date_part)}"
+    else:
+        # we have to handle the special case of zero-second durations when all
+        # parts are 0
+        return "PT0S"
+
+
 def read_dimensions_and_variables(
     href: str, rtol: float = 1.0e-5
 ) -> Tuple[Dict[str, Dimension], Dict[str, Variable], Dict[str, Any]]:
@@ -176,8 +224,7 @@ def read_dimensions_and_variables(
             ]
             values = [(offset + v * step_unit).isoformat() for v in values]
             if isinstance(step, float):
-                # TODO: maybe refine, using days
-                step = f"PT{(step_unit * step).total_seconds()}S"
+                step = iso_duration(step_unit * step)
 
             # set unit to null deliberately, as we already translated to ISO
             unit = None
