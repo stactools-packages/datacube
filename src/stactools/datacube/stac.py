@@ -1,7 +1,17 @@
 import os.path
 import re
 from datetime import datetime, timedelta
-from typing import Any, Dict, Iterable, Iterator, List, Optional, Tuple, Union, cast
+from typing import (
+    Any,
+    Dict,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Tuple,
+    Union,
+    cast,
+)
 from urllib.parse import urlparse
 
 import numpy as np
@@ -125,7 +135,7 @@ def iso_duration(td: timedelta) -> str:
 
 
 def read_dimensions_and_variables(
-    href: str, rtol: float = 1.0e-5
+    href: str, rtol: float = 1.0e-5, use_driver: Optional[str] = None
 ) -> Tuple[Dict[str, Dimension], Dict[str, Variable], Dict[str, Any]]:
     url = urlparse(href)
     if not url.scheme:
@@ -137,6 +147,9 @@ def read_dimensions_and_variables(
     # TODO: gs, azure, ...
     else:
         raise ValueError(f"Unsupported HREF {href}")
+
+    if use_driver is not None:
+        path = f'{use_driver}:"{path}"'
 
     ds = gdal.OpenEx(path, gdal.OF_MULTIDIM_RASTER | gdal.GA_ReadOnly)
     info = gdal.MultiDimInfo(ds)
@@ -167,7 +180,9 @@ def read_dimensions_and_variables(
                 step = float((data[-1] - data[0]) / len(data))
 
             values = (
-                [float(v) for v in data] if not evenly_spaced else cast(List[float], [])
+                [float(v) for v in data]
+                if not evenly_spaced
+                else cast(List[float], [])
             )
         else:
             evenly_spaced = False
@@ -257,7 +272,9 @@ def read_dimensions_and_variables(
             {
                 "type": VariableType.DATA,
                 "unit": array_info.get("unit"),
-                "dimensions": [dim_name[1:] for dim_name in array_info["dimensions"]],
+                "dimensions": [
+                    dim_name[1:] for dim_name in array_info["dimensions"]
+                ],
                 # TODO: description
             }
         )
@@ -310,7 +327,12 @@ def get_geometry(
         ),
     )
     attributes = info.get("attributes", {})
-    if x_dim and y_dim and None not in x_dim.extent and None not in y_dim.extent:
+    if (
+        x_dim
+        and y_dim
+        and None not in x_dim.extent
+        and None not in y_dim.extent
+    ):
         x_low, x_high = x_dim.extent
         y_low, y_high = y_dim.extent
 
@@ -351,9 +373,14 @@ def get_geometry(
 
 
 def extend_asset(
-    item: Item, asset: Asset, rtol: float = 1.0e-5
+    item: Item,
+    asset: Asset,
+    rtol: float = 1.0e-5,
+    use_driver: Optional[str] = None,
 ) -> DatacubeExtension[Asset]:
-    dimensions, variables, info = read_dimensions_and_variables(asset.href, rtol)
+    dimensions, variables, info = read_dimensions_and_variables(
+        asset.href, rtol, use_driver
+    )
     datacube = DatacubeExtension.ext(asset, add_if_missing=True)
     datacube.apply(dimensions, variables)
 
@@ -386,7 +413,10 @@ def extend_asset(
 
 
 def extend_item(
-    item: Item, asset_name: Optional[str] = None, rtol: float = 1.0e-5
+    item: Item,
+    asset_name: Optional[str] = None,
+    rtol: float = 1.0e-5,
+    use_driver: Optional[str] = None,
 ) -> Item:
     if not asset_name:
         for name, asset in item.assets.items():
@@ -398,12 +428,16 @@ def extend_item(
         raise ValueError("Unable to find data asset to extend")
 
     asset = item.assets[asset_name]
-    datacube = extend_asset(item, asset, rtol)
+    datacube = extend_asset(item, asset, rtol, use_driver)
 
     dimensions = datacube.dimensions.values()
     # add geometry, we assume lon/lat here
     common = CommonMetadata(item)
-    if not common.start_datetime and not common.end_datetime and not item.datetime:
+    if (
+        not common.start_datetime
+        and not common.end_datetime
+        and not item.datetime
+    ):
         time_dimension = cast(
             Optional[TemporalDimension],
             _get_dimension(dimensions, DimensionType.TEMPORAL),
@@ -423,6 +457,7 @@ def create_item(
     href: str,
     read_href_modifier: Optional[ReadHrefModifier] = None,
     rtol: float = 1.0e-5,
+    use_driver: Optional[str] = None,
 ) -> Item:
     id = os.path.splitext(os.path.basename(href))[0]
     if read_href_modifier:
@@ -438,5 +473,5 @@ def create_item(
 
     item.add_asset("data", Asset(href=href, roles=["data"]))
     item.datetime = None
-    extend_item(item, "data", rtol)
+    extend_item(item, "data", rtol, use_driver)
     return item
