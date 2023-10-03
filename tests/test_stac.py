@@ -270,5 +270,4 @@ def test_use_driver(tmp_path):
             tmp_path / "out.json",
         ],
     )
-    print(result.stdout)
     assert result.exit_code == 0
