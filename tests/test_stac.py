@@ -13,8 +13,10 @@ from pystac.extensions.datacube import (
     Variable,
     VerticalSpatialDimension,
 )
+from click.testing import CliRunner
 
 from stactools.datacube import stac
+from stactools.cli.cli import cli
 
 
 def test_create_item() -> None:
@@ -253,3 +255,19 @@ def test_get_geometry_from_metadata() -> None:
             ),
         ),
     }
+
+
+def test_use_driver(tmp_path):
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "datacube",
+            "create-item",
+            "--use-driver",
+            "ZARR",
+            "tests/data-files/test.zarr",
+            tmp_path / "out.json",
+        ],
+    )
+    assert result.exit_code == 0

@@ -46,6 +46,15 @@ stac datacube extend-item source --asset asset-name
 
 Use `stac datacube --help` to see all subcommands and options.
 
+### Fixing GDAL driver
+
+Sometimes it is necessary to fix the GDAL driver to be used. For example: ZARRs
+on HTTP storages. For this, the `--use-driver` option can be used:
+
+```shell
+stac datacube create-item --use-driver ZARR http://example.com/some.zarr/ out.json
+```
+
 ## Contributing
 
 We use [pre-commit](https://pre-commit.com/) to check any changes.
